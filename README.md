@@ -15,9 +15,10 @@ Add these registry tweaks (Windows) to disable font smoothing:
 Windows Registry Editor Version 5.00
 
 [HKEY_CURRENT_USER\Control Panel\Desktop]
+"FontSmoothing"="0"
 "FontSmoothingType"=dword:00000001
-"FontSmoothing"="1"
 ```
+Or you can use [ClearType Switch 1.1](https://karpolan.com/software/cleartype-switch/) to enable or disable ClearType and anti-aliasing text settings.
 
 **Example Config (JSON):**  
 ```json
