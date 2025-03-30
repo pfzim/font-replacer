@@ -111,7 +111,7 @@ function getReplacementsForCurrentSite() {
 }
 
 function parseAndReplaceFonts(fontFamilyString, replacements) {
-    if (!fontFamilyString) return '';
+    if (!fontFamilyString) return fontFamilyString;
 
     const withoutComments = fontFamilyString.replace(/\/\*.*?\*\//g, '');
     const fontList = [];
