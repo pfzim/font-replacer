@@ -13,13 +13,13 @@ document.addEventListener('DOMContentLoaded', () => {
         }, 5000);
     }
 
-    // Загружаем текущие настройки
+    // Load current settings
     chrome.storage.sync.get(['enabled', 'fontConfig'], (data) => {
-        enableToggle.checked = data.enabled !== false; // По умолчанию включено
+        enableToggle.checked = data.enabled !== false;
         textarea.value = JSON.stringify(data.fontConfig || [], null, 2);
     });
 
-    // Сохраняем новые настройки
+    // Save settings
     saveBtn.addEventListener('click', () => {
         try {
             const config = JSON.parse(textarea.value);

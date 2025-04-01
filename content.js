@@ -25,7 +25,7 @@
 
 let fontConfig = [
     {
-        "pattern_url": "^.*gitlab\\.com",
+        "pattern_url": "^http[s]?://[^/]*gitlab\\.com/",
         "replacements": {
             "GitLab": "Verdana",
             "GitLab Sans": "Verdana",
@@ -33,29 +33,48 @@ let fontConfig = [
         }
     },
     {
+        "pattern_url": "^http[s]?://[^/]*market\\.yandex\\.ru/",
+        "replacements": {},
+		"skip_body": true,
+		"skip_observer": true,
+		"skip_styles": true
+    },
+    {
         "pattern_url": ".*",
         "replacements": {
-            "Helvetica": "Verdana",
-            "Kaspersky Sans": "Verdana",
-            "Verdana Neue": "Verdana",
-            "GitLab Sans": "Verdana",
-            "Segoe UI": "Arial",
-            "Inter": "Arial",
-            "Georgia": "Times New Roman",
-            "Roboto Mono": "Courier New",
-            "Roboto": "Verdana",
-            "Metropolis": "Verdana",
-            "Open Sans": "Verdana",
-            "Manrope": "Verdana",
-            "Lato": "Arial",
-            "Golos": "Arial",
-            "Golos Text": "Arial",
-            "GitLab Mono": "Courier New"
-        }
+			"Barlow": "Verdana",
+			"Georgia": "Times New Roman",
+			"GitLab Mono": "Courier New",
+			"GitLab Sans": "Verdana",
+			"Golos Text": "Arial",
+			"Golos": "Arial",
+			"Google Sans": "Verdana",
+			"Helvetica": "Verdana",
+			"Inter": "Arial",
+			"Kaspersky Sans": "Verdana",
+			"Lato": "Arial",
+			"Lato": "Verdana",
+			"Manrope": "Verdana",
+			"Metropolis": "Verdana",
+			"Museo Sans": "Verdana",
+			"Open Sans": "Verdana",
+			"Optimistic Display": "Verdana",
+			"Optimistic Text": "Verdana",
+			"Roboto Mono": "Courier New",
+			"Roboto": "Verdana",
+			"Segoe UI": "Arial",
+			"Source Code Pro": "Courier New",
+			"Stolzl": "Verdana",
+			"Verdana Neue": "Verdana",
+			"ui-sans-serif": "Arial"
+		},
+		"skip_body": false,
+		"skip_observer": false,
+		"skip_styles": false
     }
 ];
 
-let fontReplacements = {};
+let replacement_rule = null;
 
 chrome.storage.sync.get(['enabled', 'fontConfig'], (data) => {
     const enabled = data.enabled !== false;
@@ -65,12 +84,12 @@ chrome.storage.sync.get(['enabled', 'fontConfig'], (data) => {
     else {
         chrome.storage.sync.set({ enabled: enabled, fontConfig: fontConfig });
     }
-    fontReplacements = getReplacementsForCurrentSite();
-    if (enabled && Object.keys(fontReplacements).length > 0) {
+    replacement_rule = getReplacementsForCurrentSite();
+    if (enabled && replacement_rule && Object.keys(replacement_rule.replacements).length > 0) {
         // Process the entire page
-        processAllStyles(document.styleSheets);
-        processAllElements(document.body);
-        startObserver();
+		if(!replacement_rule.skip_styles) processAllStyles(document.styleSheets);
+        if(!replacement_rule.skip_body) processAllElements(document.body);
+        if(!replacement_rule.skip_observer) startObserver();
     }
     else {
         console.log('Font Replacer: disabled for this url or globally!');
@@ -101,13 +120,13 @@ function getReplacementsForCurrentSite() {
             const regex = new RegExp(rule.pattern_url);
             if (regex.test(url)) {
                 console.log('Font Replacer: matched pattern: ' + rule.pattern_url);
-                return rule.replacements || {};
+                return rule || {};
             }
         } catch (e) {
             console.warn(`Invalid regex pattern: ${rule.pattern_url}`, e);
         }
     }
-    return {};
+    return null;
 }
 
 function parseAndReplaceFonts(fontFamilyString, replacements) {
@@ -193,7 +212,7 @@ function processFont(font, replacements) {
 // {
 // 	let newFontFamily = fontFamily;
 
-// 	for(const [oldFont, newFont] of Object.entries(fontReplacements))
+// 	for(const [oldFont, newFont] of Object.entries(replacement_rule.replacements))
 // 	{
 // 		newFontFamily = newFontFamily.replace(
 // 			new RegExp(`\\b${oldFont}\\b`, 'gi'),
@@ -217,7 +236,7 @@ function processElement(element) {
     if (!originalFont) return;
 
     //const newFont = replaceFonts(originalFont);
-    const newFont = parseAndReplaceFonts(originalFont, fontReplacements)
+    const newFont = parseAndReplaceFonts(originalFont, replacement_rule.replacements)
 
     if (newFont.toLowerCase() !== originalFont.toLowerCase()) {
         element.style.fontFamily = newFont;
@@ -241,27 +260,22 @@ function processAllStyles(node) {
         try {
             Array.from(sheet.cssRules || []).forEach(rule => {
                 if (rule.style && rule.style.fontFamily) {
-                    //console.log("my object: " + JSON.stringify(rule.style.fontFamily));
-                    //console.log(Object.keys(rule.style.fontFamily));
-                    //if(rule.style.fontFamily.match(/important/i) !== null){ console.log('font: ' + rule.style.fontFamily);
-                    //rule.style.fontFamily = rule.style.fontFamily.replace(' !important', '');
-
-                    // I don't know, but this trick removes the !important
-
-                    rule.style.fontFamily = rule.style.fontFamily;
+                    // Removes the !important
+                    //rule.style.fontFamily = rule.style.fontFamily;
+					if(rule.style.getPropertyPriority('font-family') === 'important')
+						rule.style.setProperty('font-family', rule.style.getPropertyValue('font-family'), null);
 
                     // I don't know, but the code below doesn't work for some reason.
 
-                    // const originalFont = rule.style.fontFamily.trim();
-                    // const newFont = parseAndReplaceFonts(originalFont, fontReplacements)
+                    // const originalFont = rule.style.getPropertyValue('font-family').trim();
+                    // const newFont = parseAndReplaceFonts(originalFont, replacement_rule.replacements)
 
                     // if (newFont.toLowerCase() !== originalFont.toLowerCase()) {
-                    // rule.style.fontFamily = newFont;
-                    // // Debug logging (commented out):
-                    // // console.log('Old font: ' + originalFont + '\nNew font: ' + newFont);
+						// rule.style.setProperty('font-family', newFont, rule.style.getPropertyPriority('font-family'));
+						// // Debug logging (commented out):
+						// // console.log('Old font: ' + originalFont + '\nNew font: ' + newFont);
                     // }
 
-                    // rule.style.fontFamily = rule.style.fontFamily;
                     // console.log('FF: ' + rule.style.fontFamily);
                 }
             });
