@@ -34,10 +34,12 @@ let fontConfig = [
     },
     {
         "pattern_url": "^http[s]?://[^/]*market\\.yandex\\.ru/",
-        "replacements": {},
+        "replacements": {
+			"YS Text": "Arial"
+		},
 		"skip_body": true,
 		"skip_observer": true,
-		"skip_styles": true
+		"skip_styles": false
     },
     {
         "pattern_url": ".*",
