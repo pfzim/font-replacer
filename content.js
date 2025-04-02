@@ -257,29 +257,28 @@ function processAllElements(node) {
     }
 }
 
+
 // Recursive function to check all styles
 function processAllStyles(node) {
     Array.from(node).forEach(sheet => {
         try {
             Array.from(sheet.cssRules || []).forEach(rule => {
-                if (rule.style && rule.style.fontFamily) {
+                if ((rule instanceof CSSStyleRule) && rule.style && rule.style.fontFamily) { // not rule instanceof CSSFontFaceRule
                     // Removes the !important
                     //rule.style.fontFamily = rule.style.fontFamily;
-					if(rule.style.getPropertyPriority('font-family') === 'important')
-						rule.style.setProperty('font-family', rule.style.getPropertyValue('font-family'), null);
+					// if(rule.style.getPropertyPriority('font-family') === 'important')
+						// rule.style.setProperty('font-family', rule.style.getPropertyValue('font-family'), null);
 
-                    // I don't know, but the code below doesn't work for some reason.
+                    // Replace fonts
 
-                    // const originalFont = rule.style.getPropertyValue('font-family').trim();
-                    // const newFont = parseAndReplaceFonts(originalFont, replacement_rule.replacements)
+                    const originalFont = rule.style.getPropertyValue('font-family').trim();
+                    const newFont = parseAndReplaceFonts(originalFont, replacement_rule.replacements)
 
-                    // if (newFont.toLowerCase() !== originalFont.toLowerCase()) {
-						// rule.style.setProperty('font-family', newFont, rule.style.getPropertyPriority('font-family'));
-						// // Debug logging (commented out):
-						// // console.log('Old font: ' + originalFont + '\nNew font: ' + newFont);
-                    // }
-
-                    // console.log('FF: ' + rule.style.fontFamily);
+                    if (newFont.toLowerCase() !== originalFont.toLowerCase()) {
+						rule.style.setProperty('font-family', newFont, rule.style.getPropertyPriority('font-family'));
+						// Debug logging (commented out):
+						// console.log('Old font: ' + originalFont + '\nNew font: ' + newFont);
+                    }
                 }
             });
         }
