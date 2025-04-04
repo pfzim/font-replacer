@@ -1,15 +1,12 @@
 // ==UserScript==
 // @name         Font Replacer
-// @namespace    https://openuserjs.org/users/pfzim
 // @version      0.3
 // @description  Replaces specified fonts with alternatives across all page elements
 // @author       pfzim
-// @copyright    2025, pfzim (https://openuserjs.org/users/pfzim)
+// @copyright    2025, pfzim (https://github.com/pfzim/font-replacer)
 // @license      GPL-3.0-or-later
 // @match        *://*/*
 // @grant        none
-// @updateURL    https://openuserjs.org/meta/pfzim/Font_Replacer.meta.js
-// @downloadURL  https://openuserjs.org/install/pfzim/Font_Replacer.user.js
 // ==/UserScript==
 
 (function ()
