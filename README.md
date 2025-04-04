@@ -34,9 +34,12 @@ Or you can use [ClearType Switch 1.1](https://karpolan.com/software/cleartype-sw
     {
         "pattern_url": "^http[s]?://[^/]*market\\.yandex\\.ru/",  <-- RegExp match URL pattern
         "replacements": {},                                       <-- Disable any font replacemets on matched URL
-		"skip_body": true,                                        <-- Do not modify fonts in page content (optional)
-		"skip_observer": true,                                    <-- Do not track DOM changes (optional)
-		"skip_styles": true                                       <-- Do not modify fonts in CSS (optional)
+		"skip_body": true,                                        <-- Do not modify fonts in page content (optional) (default: false)
+		"skip_observer": true,                                    <-- Do not track DOM changes (optional) (default: false)
+		"skip_observer_css": true,                                <-- Do not track CSS changes (optional) (default: false)
+		"skip_styles": true,                                      <-- Do not modify fonts in CSS (optional) (default: false)
+		"delay_ms": 0,                                            <-- Delay in ms before start process (optional) (default: 0)
+		"debug": false                                            <-- Log to vonsole dubug messages (optional) (default: false)
     },
     {
         "pattern_url": ".*",
